@@ -169,6 +169,7 @@ body {
 }
 
 .tabela-container {
+  position: relative; /* prende o texto "visualmente-oculto" (position: absolute) dentro da rolagem da tabela */
   overflow-x: auto;
   background: var(--papel);
   border: 1px solid var(--linha);
@@ -307,6 +308,15 @@ body {
   .resumo { grid-template-columns: repeat(2, 1fr); }
   .resumo__item--total,
   .resumo__item--entregue { grid-column: 1 / -1; }
+
+  /* No celular, cada campo ocupa a linha inteira e os botões acompanham a largura. */
+  .cadastro__form .campo,
+  .filtros .campo { flex: 1 1 100%; }
+  .campo input,
+  .campo select { width: 100%; min-width: 0; }
+  .cadastro__form .botao,
+  .filtros .botao,
+  .acoes-lote .botao { width: 100%; }
 }
 
 /* Modal de confirmação (<dialog> nativo) */
