@@ -57,10 +57,38 @@ async function carregarResumo() {
   }
 }
 
+// Monta os parâmetros da URL só com os filtros preenchidos.
+// URLSearchParams codifica caracteres especiais (&, apóstrofo, acentos).
+function parametrosDosFiltros() {
+  const parametros = new URLSearchParams();
+  const dados = new FormData(document.getElementById('form-filtros'));
+
+  for (const [campo, valor] of dados) {
+    if (valor.trim() !== '') {
+      parametros.set(campo, valor.trim());
+    }
+  }
+
+  return parametros;
+}
+
+// Evita que uma resposta antiga (de uma busca anterior) sobrescreva a mais recente.
+let ultimaRequisicao = 0;
+
 async function carregarEntregas() {
+  const parametros = parametrosDosFiltros();
+  const requisicao = ++ultimaRequisicao;
+
+  document.getElementById('limpar-filtros').disabled = parametros.toString() === '';
+
   try {
-    const resposta = await fetch(`${API}/entregas.php`);
+    const url = parametros.toString() ? `${API}/entregas.php?${parametros}` : `${API}/entregas.php`;
+    const resposta = await fetch(url);
     const dados = await resposta.json();
+
+    if (requisicao !== ultimaRequisicao) {
+      return;
+    }
 
     if (!resposta.ok) {
       entregas = [];
@@ -69,18 +97,24 @@ async function carregarEntregas() {
       entregas = dados;
     }
   } catch (erro) {
+    if (requisicao !== ultimaRequisicao) {
+      return;
+    }
     entregas = [];
     mostrarAviso('Não foi possível conectar à API.', 'erro');
   }
 
-  renderizarTabela();
+  renderizarTabela(parametros.toString() !== '');
 }
 
-function renderizarTabela() {
+function renderizarTabela(comFiltros = false) {
   const corpo = document.getElementById('lista-entregas');
 
   if (entregas.length === 0) {
-    corpo.innerHTML = '<tr><td colspan="7" class="tabela__vazio">Nenhuma entrega encontrada.</td></tr>';
+    const mensagem = comFiltros
+      ? 'Nenhuma entrega corresponde aos filtros aplicados.'
+      : 'Nenhuma entrega encontrada.';
+    corpo.innerHTML = `<tr><td colspan="7" class="tabela__vazio">${mensagem}</td></tr>`;
     return;
   }
 
@@ -99,6 +133,22 @@ function renderizarTabela() {
     </tr>
   `).join('');
 }
+
+// Filtros: aplicados ao digitar (com pequena espera) e ao trocar uma opção.
+let esperaBusca;
+const formFiltros = document.getElementById('form-filtros');
+
+formFiltros.addEventListener('submit', (evento) => evento.preventDefault());
+formFiltros.addEventListener('change', carregarEntregas);
+document.getElementById('filtro-empresa').addEventListener('input', () => {
+  clearTimeout(esperaBusca);
+  esperaBusca = setTimeout(carregarEntregas, 300);
+});
+document.getElementById('limpar-filtros').addEventListener('click', () => {
+  formFiltros.reset();
+  carregarEntregas();
+  document.getElementById('filtro-empresa').focus();
+});
 
 carregarResumo();
 carregarEntregas();

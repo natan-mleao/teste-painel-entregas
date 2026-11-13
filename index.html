@@ -34,6 +34,32 @@
       </div>
     </section>
 
+    <form class="filtros" id="form-filtros" aria-label="Filtros da lista">
+      <label class="campo campo--busca">
+        Empresa
+        <input type="search" id="filtro-empresa" name="empresa" placeholder="Buscar pela razão social" autocomplete="off">
+      </label>
+      <label class="campo">
+        Departamento
+        <select id="filtro-departamento" name="departamento">
+          <option value="">Todos</option>
+          <option value="Fiscal">Fiscal</option>
+          <option value="Pessoal">Pessoal</option>
+          <option value="Contábil">Contábil</option>
+        </select>
+      </label>
+      <label class="campo">
+        Status
+        <select id="filtro-status" name="status">
+          <option value="">Todos</option>
+          <option value="pendente">Pendente</option>
+          <option value="atrasada">Atrasada</option>
+          <option value="entregue">Entregue</option>
+        </select>
+      </label>
+      <button type="button" class="botao botao--secundario" id="limpar-filtros" disabled>Limpar filtros</button>
+    </form>
+
     <div class="tabela-container">
       <table class="tabela">
         <thead>
