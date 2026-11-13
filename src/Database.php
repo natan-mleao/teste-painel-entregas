@@ -18,6 +18,9 @@ class Database
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
+
+            // Alinha o CURDATE() do MySQL com o fuso do PHP (America/Sao_Paulo, UTC-3).
+            self::$pdo->exec("SET time_zone = '-03:00'");
         }
 
         return self::$pdo;

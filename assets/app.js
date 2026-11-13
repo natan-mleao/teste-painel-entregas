@@ -9,10 +9,11 @@ const rotulosStatus = {
   entregue_atrasada: 'Entregue com atraso',
 };
 
+// Escapa & < > " ' para o texto ser seguro tanto no conteúdo quanto dentro de atributos
+// (ex.: aria-label="..."); antes as aspas não eram escapadas e podiam quebrar o atributo.
 function escaparHtml(texto) {
-  const div = document.createElement('div');
-  div.textContent = texto ?? '';
-  return div.innerHTML;
+  const entidades = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(texto ?? '').replace(/[&<>"']/g, (caractere) => entidades[caractere]);
 }
 
 // Recebe AAAA-MM-DD e devolve DD/MM/AAAA, sem converter fuso horário.

@@ -1,5 +1,9 @@
 <?php
 
+// Fuso definido no início de toda requisição (todas as APIs carregam este arquivo),
+// antes de qualquer date(); antes ele só era aplicado ao abrir a conexão.
+date_default_timezone_set('America/Sao_Paulo');
+
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/EntregaRepository.php';
 
