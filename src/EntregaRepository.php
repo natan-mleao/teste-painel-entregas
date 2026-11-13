@@ -133,6 +133,27 @@ class EntregaRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    /**
+     * Marca como entregues (data de hoje) apenas as entregas ainda não entregues.
+     * A condição "data_entrega IS NULL" fica no próprio UPDATE: uma entrega já
+     * entregue nunca tem a data alterada, mesmo que a API seja chamada diretamente.
+     * Retorna quantas entregas foram de fato marcadas.
+     */
+    public function marcarComoEntregues(array $ids): int
+    {
+        $marcadores = implode(', ', array_fill(0, count($ids), '?'));
+
+        $consulta = $this->pdo->prepare(
+            "UPDATE entregas
+                SET data_entrega = CURDATE()
+              WHERE data_entrega IS NULL
+                AND id IN ({$marcadores})"
+        );
+        $consulta->execute(array_values($ids));
+
+        return $consulta->rowCount();
+    }
+
     public function resumo(): array
     {
         $sql = "SELECT COUNT(*) AS total,
