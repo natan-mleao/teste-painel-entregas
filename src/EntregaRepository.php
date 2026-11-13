@@ -69,6 +69,70 @@ class EntregaRepository
         return $entregas;
     }
 
+    public function listarEmpresas(): array
+    {
+        $sql = 'SELECT id, razao_social, cnpj FROM empresas ORDER BY razao_social';
+
+        return $this->pdo->query($sql)->fetchAll();
+    }
+
+    public function listarObrigacoes(): array
+    {
+        $sql = 'SELECT id, nome, departamento FROM obrigacoes ORDER BY nome';
+
+        return $this->pdo->query($sql)->fetchAll();
+    }
+
+    public function empresaExiste(int $id): bool
+    {
+        $consulta = $this->pdo->prepare('SELECT COUNT(*) FROM empresas WHERE id = :id');
+        $consulta->execute(['id' => $id]);
+
+        return (int) $consulta->fetchColumn() > 0;
+    }
+
+    public function obrigacaoExiste(int $id): bool
+    {
+        $consulta = $this->pdo->prepare('SELECT COUNT(*) FROM obrigacoes WHERE id = :id');
+        $consulta->execute(['id' => $id]);
+
+        return (int) $consulta->fetchColumn() > 0;
+    }
+
+    public function entregaExiste(int $empresaId, int $obrigacaoId, string $competencia): bool
+    {
+        $consulta = $this->pdo->prepare(
+            'SELECT COUNT(*) FROM entregas
+              WHERE empresa_id = :empresa_id AND obrigacao_id = :obrigacao_id AND competencia = :competencia'
+        );
+        $consulta->execute([
+            'empresa_id' => $empresaId,
+            'obrigacao_id' => $obrigacaoId,
+            'competencia' => $competencia,
+        ]);
+
+        return (int) $consulta->fetchColumn() > 0;
+    }
+
+    /**
+     * Toda entrega nova nasce sem data de entrega (data_entrega = NULL).
+     */
+    public function criar(int $empresaId, int $obrigacaoId, string $competencia, string $vencimento): int
+    {
+        $consulta = $this->pdo->prepare(
+            'INSERT INTO entregas (empresa_id, obrigacao_id, competencia, vencimento, data_entrega)
+             VALUES (:empresa_id, :obrigacao_id, :competencia, :vencimento, NULL)'
+        );
+        $consulta->execute([
+            'empresa_id' => $empresaId,
+            'obrigacao_id' => $obrigacaoId,
+            'competencia' => $competencia,
+            'vencimento' => $vencimento,
+        ]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
     public function resumo(): array
     {
         $sql = "SELECT COUNT(*) AS total,

@@ -34,6 +34,33 @@
       </div>
     </section>
 
+    <section class="cadastro" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro" class="cadastro__titulo">Nova entrega</h2>
+      <form class="cadastro__form" id="form-cadastro" novalidate>
+        <label class="campo">
+          Empresa
+          <select id="cadastro-empresa" name="empresa_id" required>
+            <option value="">Selecione…</option>
+          </select>
+        </label>
+        <label class="campo">
+          Obrigação
+          <select id="cadastro-obrigacao" name="obrigacao_id" required>
+            <option value="">Selecione…</option>
+          </select>
+        </label>
+        <label class="campo">
+          Competência
+          <input type="month" id="cadastro-competencia" name="competencia" required>
+        </label>
+        <label class="campo">
+          Vencimento
+          <input type="date" id="cadastro-vencimento" name="vencimento" required>
+        </label>
+        <button type="submit" class="botao">Cadastrar</button>
+      </form>
+    </section>
+
     <form class="filtros" id="form-filtros" aria-label="Filtros da lista">
       <label class="campo campo--busca">
         Empresa

@@ -150,5 +150,107 @@ document.getElementById('limpar-filtros').addEventListener('click', () => {
   document.getElementById('filtro-empresa').focus();
 });
 
+// ---------- Cadastro de entregas ----------
+
+async function carregarOpcoesCadastro() {
+  try {
+    const resposta = await fetch(`${API}/opcoes.php`);
+    const opcoes = await resposta.json();
+
+    if (!resposta.ok) {
+      mostrarAviso(opcoes.erro || 'Erro ao carregar empresas e obrigações.', 'erro');
+      return;
+    }
+
+    preencherSelect('cadastro-empresa', opcoes.empresas, (empresa) => empresa.razao_social);
+    preencherSelect('cadastro-obrigacao', opcoes.obrigacoes, (obrigacao) => `${obrigacao.nome} (${obrigacao.departamento})`);
+  } catch (erro) {
+    mostrarAviso('Não foi possível conectar à API.', 'erro');
+  }
+}
+
+// Cria as opções com textContent (sem montar HTML), então nomes com "&" ou apóstrofo aparecem certos.
+function preencherSelect(id, itens, rotulo) {
+  const select = document.getElementById(id);
+  for (const item of itens) {
+    const opcao = document.createElement('option');
+    opcao.value = item.id;
+    opcao.textContent = rotulo(item);
+    select.append(opcao);
+  }
+}
+
+function limparErrosCadastro(form) {
+  form.querySelectorAll('.campo__erro').forEach((erro) => erro.remove());
+  form.querySelectorAll('.campo--erro').forEach((campo) => campo.classList.remove('campo--erro'));
+}
+
+// Mostra a mensagem embaixo de cada campo com erro.
+function mostrarErrosCadastro(form, erros) {
+  for (const [nome, mensagem] of Object.entries(erros)) {
+    const campo = form.elements[nome]?.closest('.campo');
+    if (!campo) {
+      continue;
+    }
+    campo.classList.add('campo--erro');
+    const texto = document.createElement('span');
+    texto.className = 'campo__erro';
+    texto.textContent = mensagem;
+    campo.append(texto);
+  }
+}
+
+// Validação na tela (bônus); o servidor valida de novo de qualquer forma.
+function validarCadastro(dados) {
+  const erros = {};
+  if (!dados.empresa_id) erros.empresa_id = 'Selecione a empresa.';
+  if (!dados.obrigacao_id) erros.obrigacao_id = 'Selecione a obrigação.';
+  if (!dados.competencia) erros.competencia = 'Informe a competência (mês e ano).';
+  if (!dados.vencimento) erros.vencimento = 'Informe um vencimento válido.';
+  return erros;
+}
+
+document.getElementById('form-cadastro').addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const form = evento.target;
+  const botao = form.querySelector('button[type="submit"]');
+  const dados = Object.fromEntries(new FormData(form));
+
+  limparErrosCadastro(form);
+
+  const errosTela = validarCadastro(dados);
+  if (Object.keys(errosTela).length > 0) {
+    mostrarErrosCadastro(form, errosTela);
+    mostrarAviso('Corrija os campos destacados.', 'erro');
+    return;
+  }
+
+  botao.disabled = true;
+  try {
+    const resposta = await fetch(`${API}/entregas.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    });
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      mostrarErrosCadastro(form, resultado.campos || {});
+      mostrarAviso(resultado.erro || 'Não foi possível cadastrar a entrega.', 'erro');
+      return;
+    }
+
+    form.reset();
+    mostrarAviso(resultado.mensagem);
+    carregarEntregas();
+    carregarResumo();
+  } catch (erro) {
+    mostrarAviso('Não foi possível conectar à API.', 'erro');
+  } finally {
+    botao.disabled = false;
+  }
+});
+
+carregarOpcoesCadastro();
 carregarResumo();
 carregarEntregas();

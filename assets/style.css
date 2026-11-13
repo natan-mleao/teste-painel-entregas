@@ -197,6 +197,36 @@ body {
 
 .aviso--erro { background: var(--atrasada); }
 
+.cadastro {
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.cadastro__titulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.cadastro__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.campo--erro input,
+.campo--erro select { border-color: var(--atrasada); }
+
+.campo__erro {
+  font-size: 0.8125rem;
+  color: var(--atrasada);
+}
+
 .visualmente-oculto {
   position: absolute;
   width: 1px;
