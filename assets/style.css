@@ -133,6 +133,13 @@ body {
 
 .botao--secundario:hover { background: #e6f1f5; }
 
+/* Nos filtros, o "Limpar" tem a mesma altura das caixas (1rem x 1.5 + 0.5rem x 2 + borda),
+   então fica alinhado com elas em vez de parecer caído. */
+.filtros .botao--secundario {
+  padding: 0.5rem 0.875rem;
+  font-size: 1rem;
+}
+
 :focus-visible {
   outline: 3px solid #7cc4dc;
   outline-offset: 2px;

@@ -39,6 +39,11 @@ class EntregaRepository
             };
         }
 
+        if (($filtros['competencia'] ?? '') !== '') {
+            $condicoes[] = 'e.competencia = :competencia';
+            $parametros['competencia'] = $filtros['competencia'];
+        }
+
         $where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
 
         $sql = "SELECT e.id,

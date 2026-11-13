@@ -18,7 +18,7 @@ function listarEntregas(): void
 {
     // Parâmetros da URL; um valor que não seja texto (ex.: empresa[]=x) é tratado como vazio.
     $filtros = [];
-    foreach (['empresa', 'departamento', 'status'] as $campo) {
+    foreach (['empresa', 'departamento', 'status', 'competencia'] as $campo) {
         $valor = $_GET[$campo] ?? '';
         $filtros[$campo] = is_string($valor) ? trim($valor) : '';
     }
@@ -29,6 +29,10 @@ function listarEntregas(): void
 
     if ($filtros['status'] !== '' && !in_array($filtros['status'], EntregaRepository::STATUS, true)) {
         responderJson(['erro' => 'Status inválido. Use pendente, atrasada ou entregue.'], 400);
+    }
+
+    if ($filtros['competencia'] !== '' && !preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $filtros['competencia'])) {
+        responderJson(['erro' => 'Competência inválida. Use o formato AAAA-MM.'], 400);
     }
 
     try {
