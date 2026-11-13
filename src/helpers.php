@@ -1,0 +1,40 @@
+<?php
+
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/EntregaRepository.php';
+
+function responderJson($dados, int $status = 200): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($dados, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function responderErro(Throwable $e): void
+{
+    responderJson([
+        'erro' => 'Não foi possível concluir a operação.',
+        'detalhe' => $e->getMessage(),
+    ], 500);
+}
+
+/**
+ * Status possíveis:
+ * - entregue: possui data de entrega;
+ * - atrasada: não entregue e vencimento anterior a hoje;
+ * - pendente: não entregue e vencimento hoje ou no futuro.
+ */
+function calcularStatus(array $entrega): string
+{
+    if (!empty($entrega['data_entrega'])) {
+        return 'entregue';
+    }
+
+    // Datas no formato AAAA-MM-DD podem ser comparadas como texto.
+    if ($entrega['vencimento'] < date('Y-m-d')) {
+        return 'atrasada';
+    }
+
+    return 'pendente';
+}

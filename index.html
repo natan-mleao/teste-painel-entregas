@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Entregas</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="topo__conteudo">
+      <h1>Painel de Entregas</h1>
+      <p>Obrigações acessórias das empresas clientes do escritório</p>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <section class="resumo" aria-label="Resumo das entregas">
+      <div class="resumo__item">
+        <span class="resumo__numero" id="resumo-total">–</span>
+        <span class="resumo__rotulo">Total</span>
+      </div>
+      <div class="resumo__item resumo__item--entregue">
+        <span class="resumo__numero" id="resumo-entregues">–</span>
+        <span class="resumo__rotulo">Entregues</span>
+      </div>
+      <div class="resumo__item resumo__item--pendente">
+        <span class="resumo__numero" id="resumo-pendentes">–</span>
+        <span class="resumo__rotulo">Pendentes</span>
+      </div>
+      <div class="resumo__item resumo__item--atrasada">
+        <span class="resumo__numero" id="resumo-atrasadas">–</span>
+        <span class="resumo__rotulo">Atrasadas</span>
+      </div>
+    </section>
+
+    <div class="tabela-container">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Obrigação</th>
+            <th>Departamento</th>
+            <th>Competência</th>
+            <th>Vencimento</th>
+            <th>Entregue em</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="lista-entregas">
+          <tr><td colspan="7" class="tabela__vazio">Carregando entregas…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
