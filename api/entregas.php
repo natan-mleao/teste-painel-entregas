@@ -90,6 +90,7 @@ function cadastrarEntrega(): void
         }
 
         $id = $repositorio->criar($empresaId, $obrigacaoId, $competencia, $vencimento);
+
         responderJson(['id' => $id, 'mensagem' => 'Entrega cadastrada com sucesso.'], 201);
     } catch (PDOException $e) {
         // 1062 = chave única violada (cadastro duplicado feito ao mesmo tempo por outra pessoa).

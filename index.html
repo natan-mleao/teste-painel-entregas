@@ -115,6 +115,15 @@
     </div>
   </main>
 
+  <dialog class="modal" id="modal-confirmacao" aria-labelledby="modal-titulo">
+    <h2 class="modal__titulo" id="modal-titulo">Vencimento já passou</h2>
+    <p class="modal__texto" id="modal-texto"></p>
+    <div class="modal__acoes">
+      <button type="button" class="botao botao--secundario" data-resposta="nao">Cancelar</button>
+      <button type="button" class="botao" data-resposta="sim">Cadastrar mesmo assim</button>
+    </div>
+  </dialog>
+
   <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
 
   <script src="assets/app.js"></script>

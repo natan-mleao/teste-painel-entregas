@@ -257,6 +257,37 @@ function mostrarErrosCadastro(form, erros) {
 }
 
 // Validação na tela (bônus); o servidor valida de novo de qualquer forma.
+// Data de hoje no formato AAAA-MM-DD pelo horário local
+// (toISOString usaria UTC e, à noite, já devolveria o dia seguinte).
+function hojeIso() {
+  const hoje = new Date();
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoje.getDate()).padStart(2, '0');
+  return `${hoje.getFullYear()}-${mes}-${dia}`;
+}
+
+// Abre o modal de confirmação e devolve uma Promise: true = confirmou, false = cancelou.
+// Usa o <dialog> nativo: showModal() bloqueia a página por trás e a tecla Esc já cancela.
+function confirmarModal(texto) {
+  const modal = document.getElementById('modal-confirmacao');
+  document.getElementById('modal-texto').textContent = texto;
+
+  return new Promise((resolver) => {
+    const responder = (evento) => {
+      const botao = evento.target.closest('[data-resposta]');
+      if (botao) modal.close(botao.dataset.resposta);
+    };
+    modal.addEventListener('click', responder);
+    modal.addEventListener('close', () => {
+      modal.removeEventListener('click', responder);
+      resolver(modal.returnValue === 'sim');
+    }, { once: true });
+
+    modal.returnValue = '';
+    modal.showModal();
+  });
+}
+
 function validarCadastro(dados) {
   const erros = {};
   if (!dados.empresa_id) erros.empresa_id = 'Selecione a empresa.';
@@ -279,6 +310,18 @@ document.getElementById('form-cadastro').addEventListener('submit', async (event
     mostrarErrosCadastro(form, errosTela);
     mostrarAviso('Corrija os campos destacados.', 'erro');
     return;
+  }
+
+  // Melhoria: avisa quando o vencimento já passou, porque a entrega nasceria atrasada.
+  // Datas AAAA-MM-DD podem ser comparadas como texto.
+  if (dados.vencimento < hojeIso()) {
+    const confirmar = await confirmarModal(
+      `O vencimento ${formatarData(dados.vencimento)} já passou, então esta entrega será cadastrada como atrasada. Deseja continuar?`
+    );
+    if (!confirmar) {
+      document.getElementById('cadastro-vencimento').focus();
+      return;
+    }
   }
 
   botao.disabled = true;

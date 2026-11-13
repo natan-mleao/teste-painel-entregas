@@ -256,3 +256,30 @@ body {
   .resumo__item:nth-child(3) { box-shadow: 0 -1px 0 var(--linha); }
   .resumo__item:nth-child(4) { box-shadow: -1px 0 0 var(--linha), 0 -1px 0 var(--linha); }
 }
+
+/* Modal de confirmação (<dialog> nativo) */
+.modal {
+  max-width: 26rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--linha);
+  border-radius: 8px;
+  background: var(--papel);
+  color: var(--texto);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal::backdrop { background: rgba(27, 43, 58, 0.55); }
+
+.modal__titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--atrasada);
+}
+
+.modal__texto { margin: 0 0 1.25rem; line-height: 1.5; }
+
+.modal__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
