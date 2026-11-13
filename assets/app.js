@@ -140,7 +140,7 @@ function renderizarTabela(comFiltros = false) {
       <td>${formatarData(entrega.data_entrega)}</td>
       <td><span class="status status--${entrega.status}">${rotulosStatus[entrega.status]}</span></td>
       <td>
-        ${naoEntregue ? `<button type="button" class="botao botao--secundario" data-marcar="${entrega.id}">Marcar como entregue</button>` : ''}
+        ${naoEntregue ? `<button type="button" class="botao botao--secundario botao--icone" data-marcar="${entrega.id}" title="Marcar como entregue" aria-label="Marcar ${escaparHtml(entrega.obrigacao)} de ${escaparHtml(entrega.razao_social)} como entregue">✓</button>` : ''}
       </td>
     </tr>
   `;

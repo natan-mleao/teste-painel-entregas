@@ -184,9 +184,26 @@ body {
 .tabela th,
 .tabela td {
   text-align: left;
-  padding: 0.625rem 0.875rem;
+  padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--linha);
   white-space: nowrap;
+}
+
+/* Empresa e Obrigação podem quebrar linha; assim a tabela cabe na tela
+   e o botão "Marcar como entregue" não fica cortado à direita. */
+.tabela td:nth-child(2),
+.tabela td:nth-child(3) {
+  white-space: normal;
+  min-width: 8rem;
+}
+
+/* Botão de ação da linha: só o ícone de "certo"; o texto completo fica no title/aria-label. */
+.botao--icone {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  font-size: 1.125rem;
+  line-height: 1;
 }
 
 .tabela th {
