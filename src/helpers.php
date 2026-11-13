@@ -13,9 +13,11 @@ function responderJson($dados, int $status = 200): void
 
 function responderErro(Throwable $e): void
 {
+    // O detalhe técnico vai para o log do servidor, nunca para o navegador.
+    error_log($e->getMessage());
+
     responderJson([
         'erro' => 'Não foi possível concluir a operação.',
-        'detalhe' => $e->getMessage(),
     ], 500);
 }
 
