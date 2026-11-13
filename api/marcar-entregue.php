@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     responderJson(['erro' => 'Método não permitido.'], 405);
 }
 
-// Corpo esperado: {"ids": [1, 2, 3]}
+// Corpo esperado: {"ids": [1, 2, 3], "data_entrega": "AAAA-MM-DD"} (data opcional: sem ela, vale hoje)
 $dados = json_decode(file_get_contents('php://input'), true);
 $ids = is_array($dados) ? ($dados['ids'] ?? null) : null;
 
@@ -23,9 +23,24 @@ foreach ($ids as $id) {
     $idsValidos[$numero] = $numero; // a chave remove repetidos
 }
 
+// Bônus: data de entrega escolhida. Precisa ser uma data real e não pode ser futura.
+$dataEntrega = $dados['data_entrega'] ?? null;
+if ($dataEntrega === '') {
+    $dataEntrega = null;
+}
+if ($dataEntrega !== null) {
+    $objeto = is_string($dataEntrega) ? DateTime::createFromFormat('Y-m-d', $dataEntrega) : false;
+    if ($objeto === false || $objeto->format('Y-m-d') !== $dataEntrega) {
+        responderJson(['erro' => 'Informe uma data de entrega válida.'], 422);
+    }
+    if ($dataEntrega > date('Y-m-d')) {
+        responderJson(['erro' => 'A data de entrega não pode ser futura.'], 422);
+    }
+}
+
 try {
     $repositorio = new EntregaRepository(Database::conexao());
-    $marcadas = $repositorio->marcarComoEntregues($idsValidos);
+    $marcadas = $repositorio->marcarComoEntregues($idsValidos, $dataEntrega);
 
     if ($marcadas === 0) {
         responderJson(['erro' => 'Nenhuma entrega foi marcada: as selecionadas já estavam entregues ou não existem.'], 409);
@@ -34,6 +49,10 @@ try {
     $mensagem = $marcadas === 1
         ? '1 entrega marcada como entregue.'
         : "{$marcadas} entregas marcadas como entregues.";
+
+    if ($dataEntrega !== null && $dataEntrega !== date('Y-m-d')) {
+        $mensagem = rtrim($mensagem, '.') . ' em ' . DateTime::createFromFormat('Y-m-d', $dataEntrega)->format('d/m/Y') . '.';
+    }
 
     $ignoradas = count($idsValidos) - $marcadas;
     if ($ignoradas > 0) {

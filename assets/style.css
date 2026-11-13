@@ -236,9 +236,13 @@ body {
 
 .acoes-lote {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
+
 
 .botao:disabled {
   opacity: 0.5;
@@ -290,3 +294,9 @@ body {
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+.modal__titulo--neutro { color: var(--tinta); }
+
+.modal .campo { margin-bottom: 0.5rem; }
+
+.modal .campo__erro { margin: 0 0 0.75rem; }

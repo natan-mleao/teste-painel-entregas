@@ -128,6 +128,20 @@
     </div>
   </dialog>
 
+  <dialog class="modal" id="modal-entrega" aria-labelledby="modal-entrega-titulo">
+    <h2 class="modal__titulo modal__titulo--neutro" id="modal-entrega-titulo">Marcar como entregue</h2>
+    <p class="modal__texto" id="modal-entrega-texto"></p>
+    <label class="campo">
+      Data de entrega
+      <input type="date" id="modal-entrega-data">
+    </label>
+    <p class="campo__erro" id="modal-entrega-erro" hidden></p>
+    <div class="modal__acoes">
+      <button type="button" class="botao botao--secundario" data-resposta="nao">Cancelar</button>
+      <button type="button" class="botao" data-resposta="sim">Confirmar entrega</button>
+    </div>
+  </dialog>
+
   <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
 
   <script src="assets/app.js"></script>

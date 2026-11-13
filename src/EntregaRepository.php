@@ -144,17 +144,18 @@ class EntregaRepository
      * entregue nunca tem a data alterada, mesmo que a API seja chamada diretamente.
      * Retorna quantas entregas foram de fato marcadas.
      */
-    public function marcarComoEntregues(array $ids): int
+    // $data = null usa a data de hoje do banco (CURDATE()); senão, a data escolhida (já validada na API).
+    public function marcarComoEntregues(array $ids, ?string $data = null): int
     {
         $marcadores = implode(', ', array_fill(0, count($ids), '?'));
 
         $consulta = $this->pdo->prepare(
             "UPDATE entregas
-                SET data_entrega = CURDATE()
+                SET data_entrega = COALESCE(?, CURDATE())
               WHERE data_entrega IS NULL
                 AND id IN ({$marcadores})"
         );
-        $consulta->execute(array_values($ids));
+        $consulta->execute([$data, ...array_values($ids)]);
 
         return $consulta->rowCount();
     }

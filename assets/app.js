@@ -167,12 +167,58 @@ function atualizarSelecao() {
   todas.indeterminate = quantidade > 0 && quantidade < caixas.length;
 }
 
-async function marcarComoEntregues(ids) {
+// Bônus: modal para escolher a data de conclusão, já preenchida com hoje.
+// Devolve uma Promise com a data (AAAA-MM-DD) ou null se cancelar.
+function escolherDataEntrega(quantidade) {
+  const modal = document.getElementById('modal-entrega');
+  const campo = document.getElementById('modal-entrega-data');
+  const erro = document.getElementById('modal-entrega-erro');
+
+  document.getElementById('modal-entrega-texto').textContent = quantidade === 1
+    ? 'Informe a data em que a entrega foi concluída.'
+    : `Informe a data em que as ${quantidade} entregas foram concluídas.`;
+  campo.value = hojeIso();
+  campo.max = hojeIso(); // o calendário não deixa escolher dia futuro
+  erro.hidden = true;
+
+  return new Promise((resolver) => {
+    const responder = (evento) => {
+      const botao = evento.target.closest('[data-resposta]');
+      if (!botao) return;
+
+      // Validação na tela (o servidor valida de novo): obrigatória e não futura.
+      if (botao.dataset.resposta === 'sim' && (!campo.value || campo.value > hojeIso())) {
+        erro.textContent = campo.value ? 'A data de entrega não pode ser futura.' : 'Informe a data de entrega.';
+        erro.hidden = false;
+        campo.focus();
+        return;
+      }
+      modal.close(botao.dataset.resposta);
+    };
+    modal.addEventListener('click', responder);
+    modal.addEventListener('close', () => {
+      modal.removeEventListener('click', responder);
+      resolver(modal.returnValue === 'sim' ? campo.value : null);
+    }, { once: true });
+
+    modal.returnValue = '';
+    modal.showModal();
+  });
+}
+
+// "botao" é desabilitado só depois de confirmar, para não travar a tela se cancelar.
+async function marcarComoEntregues(ids, botao) {
+  const dataEntrega = await escolherDataEntrega(ids.length);
+  if (dataEntrega === null) {
+    return; // cancelou: nada muda e a seleção continua
+  }
+  botao.disabled = true;
+
   try {
     const resposta = await fetch(`${API}/marcar-entregue.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids }),
+      body: JSON.stringify({ ids, data_entrega: dataEntrega }),
     });
     const resultado = await resposta.json();
 
@@ -354,8 +400,7 @@ document.getElementById('form-cadastro').addEventListener('submit', async (event
 document.getElementById('lista-entregas').addEventListener('click', (evento) => {
   const botao = evento.target.closest('[data-marcar]');
   if (botao) {
-    botao.disabled = true;
-    marcarComoEntregues([Number(botao.dataset.marcar)]);
+    marcarComoEntregues([Number(botao.dataset.marcar)], botao);
   }
 });
 
@@ -375,8 +420,7 @@ document.getElementById('selecionar-todas').addEventListener('change', (evento) 
 document.getElementById('marcar-selecionadas').addEventListener('click', (evento) => {
   const ids = idsSelecionados();
   if (ids.length > 0) {
-    evento.target.disabled = true;
-    marcarComoEntregues(ids);
+    marcarComoEntregues(ids, evento.target);
   }
 });
 
