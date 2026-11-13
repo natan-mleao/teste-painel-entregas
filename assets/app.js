@@ -114,12 +114,18 @@ function renderizarTabela(comFiltros = false) {
     const mensagem = comFiltros
       ? 'Nenhuma entrega corresponde aos filtros aplicados.'
       : 'Nenhuma entrega encontrada.';
-    corpo.innerHTML = `<tr><td colspan="7" class="tabela__vazio">${mensagem}</td></tr>`;
+    corpo.innerHTML = `<tr><td colspan="9" class="tabela__vazio">${mensagem}</td></tr>`;
+    atualizarSelecao();
     return;
   }
 
-  corpo.innerHTML = entregas.map((entrega) => `
+  corpo.innerHTML = entregas.map((entrega) => {
+    const naoEntregue = entrega.status !== 'entregue';
+    return `
     <tr>
+      <td class="tabela__selecao">
+        ${naoEntregue ? `<input type="checkbox" class="selecao-entrega" value="${entrega.id}" aria-label="Selecionar ${escaparHtml(entrega.obrigacao)} de ${escaparHtml(entrega.razao_social)}">` : ''}
+      </td>
       <td>
         <span class="tabela__empresa">${escaparHtml(entrega.razao_social)}</span>
         <span class="tabela__cnpj">${escaparHtml(entrega.cnpj)}</span>
@@ -130,8 +136,58 @@ function renderizarTabela(comFiltros = false) {
       <td>${formatarData(entrega.vencimento)}</td>
       <td>${formatarData(entrega.data_entrega)}</td>
       <td><span class="status status--${entrega.status}">${rotulosStatus[entrega.status]}</span></td>
+      <td>
+        ${naoEntregue ? `<button type="button" class="botao botao--secundario" data-marcar="${entrega.id}">Marcar como entregue</button>` : ''}
+      </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
+
+  atualizarSelecao();
+}
+
+// ---------- Marcar como entregue ----------
+
+function idsSelecionados() {
+  return [...document.querySelectorAll('.selecao-entrega:checked')].map((caixa) => Number(caixa.value));
+}
+
+// Atualiza o botão em lote (contador e disponibilidade) e a caixa "selecionar todas".
+function atualizarSelecao() {
+  const caixas = document.querySelectorAll('.selecao-entrega');
+  const quantidade = idsSelecionados().length;
+
+  const botao = document.getElementById('marcar-selecionadas');
+  botao.disabled = quantidade === 0;
+  botao.textContent = `Marcar selecionadas como entregues (${quantidade})`;
+
+  const todas = document.getElementById('selecionar-todas');
+  todas.disabled = caixas.length === 0;
+  todas.checked = caixas.length > 0 && quantidade === caixas.length;
+  todas.indeterminate = quantidade > 0 && quantidade < caixas.length;
+}
+
+async function marcarComoEntregues(ids) {
+  try {
+    const resposta = await fetch(`${API}/marcar-entregue.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    });
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      mostrarAviso(resultado.erro || 'Não foi possível marcar as entregas.', 'erro');
+    } else {
+      mostrarAviso(resultado.mensagem);
+    }
+  } catch (erro) {
+    mostrarAviso('Não foi possível conectar à API.', 'erro');
+  }
+
+  // Recarrega mantendo os filtros aplicados (carregarEntregas lê o formulário de filtros).
+  carregarEntregas();
+  carregarResumo();
 }
 
 // Filtros: aplicados ao digitar (com pequena espera) e ao trocar uma opção.
@@ -248,6 +304,36 @@ document.getElementById('form-cadastro').addEventListener('submit', async (event
     mostrarAviso('Não foi possível conectar à API.', 'erro');
   } finally {
     botao.disabled = false;
+  }
+});
+
+// Um único listener na tabela atende os botões e caixas criados a cada renderização.
+document.getElementById('lista-entregas').addEventListener('click', (evento) => {
+  const botao = evento.target.closest('[data-marcar]');
+  if (botao) {
+    botao.disabled = true;
+    marcarComoEntregues([Number(botao.dataset.marcar)]);
+  }
+});
+
+document.getElementById('lista-entregas').addEventListener('change', (evento) => {
+  if (evento.target.matches('.selecao-entrega')) {
+    atualizarSelecao();
+  }
+});
+
+document.getElementById('selecionar-todas').addEventListener('change', (evento) => {
+  document.querySelectorAll('.selecao-entrega').forEach((caixa) => {
+    caixa.checked = evento.target.checked;
+  });
+  atualizarSelecao();
+});
+
+document.getElementById('marcar-selecionadas').addEventListener('click', (evento) => {
+  const ids = idsSelecionados();
+  if (ids.length > 0) {
+    evento.target.disabled = true;
+    marcarComoEntregues(ids);
   }
 });
 

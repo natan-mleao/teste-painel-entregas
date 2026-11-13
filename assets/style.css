@@ -227,6 +227,22 @@ body {
   color: var(--atrasada);
 }
 
+.acoes-lote {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.botao:disabled:hover { background: var(--acao); }
+.botao--secundario:disabled:hover { background: transparent; }
+
+.tabela__selecao { width: 2.5rem; }
+
 .visualmente-oculto {
   position: absolute;
   width: 1px;
