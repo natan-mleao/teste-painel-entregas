@@ -28,6 +28,7 @@ CREATE TABLE entregas (
   competencia CHAR(7) NOT NULL COMMENT 'Formato AAAA-MM',
   vencimento DATE NOT NULL,
   data_entrega DATE NULL,
+  CONSTRAINT uk_entrega_empresa_obrigacao_competencia UNIQUE (empresa_id, obrigacao_id, competencia),
   CONSTRAINT fk_entrega_empresa FOREIGN KEY (empresa_id) REFERENCES empresas (id),
   CONSTRAINT fk_entrega_obrigacao FOREIGN KEY (obrigacao_id) REFERENCES obrigacoes (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
