@@ -13,6 +13,8 @@
   --pendente-fundo: #fff2d6;
   --atrasada: #b42318;
   --atrasada-fundo: #fde7e5;
+  --entregue-atraso: #9a3412;
+  --entregue-atraso-fundo: #ffedd5;
   font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--texto);
 }
@@ -50,23 +52,27 @@ body {
 
 .conteudo { padding: 1.5rem 1rem 3rem; }
 
+/* Total maior; depois Pendentes, Atrasadas e Entregues (com o detalhe no prazo / com atraso).
+   O gap de 1px sobre o fundo cinza desenha as divisórias em qualquer largura. */
 .resumo {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  background: var(--papel);
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  gap: 1px;
+  background: var(--linha);
   border: 1px solid var(--linha);
   border-radius: 6px;
+  overflow: hidden;
   margin-bottom: 1.5rem;
 }
 
 .resumo__item {
   display: flex;
   flex-direction: column;
+  background: var(--papel);
   padding: 1rem 1.25rem;
   border-left: 4px solid transparent;
 }
 
-.resumo__item + .resumo__item { box-shadow: -1px 0 0 var(--linha); }
 .resumo__item--entregue { border-left-color: var(--entregue); }
 .resumo__item--pendente { border-left-color: var(--pendente); }
 .resumo__item--atrasada { border-left-color: var(--atrasada); }
@@ -80,6 +86,23 @@ body {
 }
 
 .resumo__rotulo { color: var(--texto-suave); }
+
+.resumo__item--total { border-left-color: var(--tinta); justify-content: center; }
+.resumo__item--total .resumo__numero { font-size: 3rem; }
+
+.resumo__detalhe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--linha);
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.resumo__detalhe strong { color: var(--entregue); }
+.resumo__detalhe-atraso strong { color: var(--entregue-atraso); }
 
 .filtros {
   display: flex;
@@ -190,6 +213,7 @@ body {
 .status--entregue { color: var(--entregue); background: var(--entregue-fundo); }
 .status--pendente { color: var(--pendente); background: var(--pendente-fundo); }
 .status--atrasada { color: var(--atrasada); background: var(--atrasada-fundo); }
+.status--entregue_atrasada { color: var(--entregue-atraso); background: var(--entregue-atraso-fundo); }
 
 .aviso {
   position: fixed;
@@ -264,8 +288,8 @@ body {
 
 @media (max-width: 40rem) {
   .resumo { grid-template-columns: repeat(2, 1fr); }
-  .resumo__item:nth-child(3) { box-shadow: 0 -1px 0 var(--linha); }
-  .resumo__item:nth-child(4) { box-shadow: -1px 0 0 var(--linha), 0 -1px 0 var(--linha); }
+  .resumo__item--total,
+  .resumo__item--entregue { grid-column: 1 / -1; }
 }
 
 /* Modal de confirmação (<dialog> nativo) */

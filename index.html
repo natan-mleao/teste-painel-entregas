@@ -16,13 +16,9 @@
 
   <main class="conteudo">
     <section class="resumo" aria-label="Resumo das entregas">
-      <div class="resumo__item">
+      <div class="resumo__item resumo__item--total">
         <span class="resumo__numero" id="resumo-total">–</span>
         <span class="resumo__rotulo">Total</span>
-      </div>
-      <div class="resumo__item resumo__item--entregue">
-        <span class="resumo__numero" id="resumo-entregues">–</span>
-        <span class="resumo__rotulo">Entregues</span>
       </div>
       <div class="resumo__item resumo__item--pendente">
         <span class="resumo__numero" id="resumo-pendentes">–</span>
@@ -31,6 +27,14 @@
       <div class="resumo__item resumo__item--atrasada">
         <span class="resumo__numero" id="resumo-atrasadas">–</span>
         <span class="resumo__rotulo">Atrasadas</span>
+      </div>
+      <div class="resumo__item resumo__item--entregue">
+        <span class="resumo__numero" id="resumo-entregues">–</span>
+        <span class="resumo__rotulo">Entregues</span>
+        <div class="resumo__detalhe">
+          <span><strong id="resumo-entregues-prazo">–</strong> no prazo</span>
+          <span class="resumo__detalhe-atraso"><strong id="resumo-entregues-atraso">–</strong> com atraso</span>
+        </div>
       </div>
     </section>
 
@@ -81,7 +85,8 @@
           <option value="">Todos</option>
           <option value="pendente">Pendente</option>
           <option value="atrasada">Atrasada</option>
-          <option value="entregue">Entregue</option>
+          <option value="entregue">Entregue (todas)</option>
+          <option value="entregue_atrasada">Entregue com atraso</option>
         </select>
       </label>
       <label class="campo">

@@ -23,14 +23,15 @@ function responderErro(Throwable $e): void
 
 /**
  * Status possíveis:
- * - entregue: possui data de entrega;
+ * - entregue: possui data de entrega, no dia do vencimento ou antes;
+ * - entregue_atrasada: possui data de entrega posterior ao vencimento (melhoria);
  * - atrasada: não entregue e vencimento anterior a hoje;
  * - pendente: não entregue e vencimento hoje ou no futuro.
  */
 function calcularStatus(array $entrega): string
 {
     if (!empty($entrega['data_entrega'])) {
-        return 'entregue';
+        return $entrega['data_entrega'] > $entrega['vencimento'] ? 'entregue_atrasada' : 'entregue';
     }
 
     // Datas no formato AAAA-MM-DD podem ser comparadas como texto.

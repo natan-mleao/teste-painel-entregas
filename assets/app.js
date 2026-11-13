@@ -6,6 +6,7 @@ const rotulosStatus = {
   entregue: 'Entregue',
   pendente: 'Pendente',
   atrasada: 'Atrasada',
+  entregue_atrasada: 'Entregue com atraso',
 };
 
 function escaparHtml(texto) {
@@ -52,6 +53,8 @@ async function carregarResumo() {
     document.getElementById('resumo-entregues').textContent = resumo.entregues;
     document.getElementById('resumo-pendentes').textContent = resumo.pendentes;
     document.getElementById('resumo-atrasadas').textContent = resumo.atrasadas;
+    document.getElementById('resumo-entregues-prazo').textContent = resumo.entregues_no_prazo;
+    document.getElementById('resumo-entregues-atraso').textContent = resumo.entregues_com_atraso;
   } catch (erro) {
     mostrarAviso('Não foi possível conectar à API.', 'erro');
   }
@@ -120,7 +123,7 @@ function renderizarTabela(comFiltros = false) {
   }
 
   corpo.innerHTML = entregas.map((entrega) => {
-    const naoEntregue = entrega.status !== 'entregue';
+    const naoEntregue = !entrega.data_entrega;
     return `
     <tr>
       <td class="tabela__selecao">

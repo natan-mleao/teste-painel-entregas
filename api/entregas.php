@@ -28,7 +28,7 @@ function listarEntregas(): void
     }
 
     if ($filtros['status'] !== '' && !in_array($filtros['status'], EntregaRepository::STATUS, true)) {
-        responderJson(['erro' => 'Status inválido. Use pendente, atrasada ou entregue.'], 400);
+        responderJson(['erro' => 'Status inválido. Use pendente, atrasada, entregue ou entregue_atrasada.'], 400);
     }
 
     if ($filtros['competencia'] !== '' && !preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $filtros['competencia'])) {

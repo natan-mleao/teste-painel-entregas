@@ -3,7 +3,7 @@
 class EntregaRepository
 {
     public const DEPARTAMENTOS = ['Fiscal', 'Pessoal', 'Contábil'];
-    public const STATUS = ['pendente', 'atrasada', 'entregue'];
+    public const STATUS = ['pendente', 'atrasada', 'entregue', 'entregue_atrasada'];
 
     public function __construct(private PDO $pdo)
     {
@@ -33,7 +33,10 @@ class EntregaRepository
 
         if (($filtros['status'] ?? '') !== '') {
             $condicoes[] = match ($filtros['status']) {
+                // "entregue" continua sendo toda entrega com data (regra do README);
+                // "entregue_atrasada" filtra só as entregues depois do vencimento.
                 'entregue' => 'e.data_entrega IS NOT NULL',
+                'entregue_atrasada' => 'e.data_entrega > e.vencimento',
                 'atrasada' => 'e.data_entrega IS NULL AND e.vencimento < CURDATE()',
                 'pendente' => 'e.data_entrega IS NULL AND e.vencimento >= CURDATE()',
             };
@@ -165,7 +168,9 @@ class EntregaRepository
         $sql = "SELECT COUNT(*) AS total,
                        COALESCE(SUM(data_entrega IS NOT NULL), 0) AS entregues,
                        COALESCE(SUM(data_entrega IS NULL AND vencimento >= CURDATE()), 0) AS pendentes,
-                       COALESCE(SUM(data_entrega IS NULL AND vencimento < CURDATE()), 0) AS atrasadas
+                       COALESCE(SUM(data_entrega IS NULL AND vencimento < CURDATE()), 0) AS atrasadas,
+                       COALESCE(SUM(data_entrega <= vencimento), 0) AS entregues_no_prazo,
+                       COALESCE(SUM(data_entrega > vencimento), 0) AS entregues_com_atraso
                   FROM entregas";
 
         return array_map('intval', $this->pdo->query($sql)->fetch());
