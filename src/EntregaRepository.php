@@ -2,12 +2,45 @@
 
 class EntregaRepository
 {
+    public const DEPARTAMENTOS = ['Fiscal', 'Pessoal', 'Contábil'];
+    public const STATUS = ['pendente', 'atrasada', 'entregue'];
+
     public function __construct(private PDO $pdo)
     {
     }
 
-    public function listar(): array
+    /**
+     * Filtros aceitos (todos opcionais e combináveis):
+     * - empresa: parte da razão social;
+     * - departamento: um de self::DEPARTAMENTOS;
+     * - status: um de self::STATUS.
+     */
+    public function listar(array $filtros = []): array
     {
+        $condicoes = [];
+        $parametros = [];
+
+        if (($filtros['empresa'] ?? '') !== '') {
+            // % e _ são curingas do LIKE: escapados para serem buscados como texto.
+            $condicoes[] = 'emp.razao_social LIKE :empresa';
+            $parametros['empresa'] = '%' . addcslashes($filtros['empresa'], '%_\\') . '%';
+        }
+
+        if (($filtros['departamento'] ?? '') !== '') {
+            $condicoes[] = 'o.departamento = :departamento';
+            $parametros['departamento'] = $filtros['departamento'];
+        }
+
+        if (($filtros['status'] ?? '') !== '') {
+            $condicoes[] = match ($filtros['status']) {
+                'entregue' => 'e.data_entrega IS NOT NULL',
+                'atrasada' => 'e.data_entrega IS NULL AND e.vencimento < CURDATE()',
+                'pendente' => 'e.data_entrega IS NULL AND e.vencimento >= CURDATE()',
+            };
+        }
+
+        $where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
+
         $sql = "SELECT e.id,
                        e.competencia,
                        e.vencimento,
@@ -20,9 +53,12 @@ class EntregaRepository
                   FROM entregas e
                   JOIN empresas emp ON emp.id = e.empresa_id
                   JOIN obrigacoes o ON o.id = e.obrigacao_id
+                  {$where}
                  ORDER BY e.vencimento ASC, emp.razao_social ASC";
 
-        $entregas = $this->pdo->query($sql)->fetchAll();
+        $consulta = $this->pdo->prepare($sql);
+        $consulta->execute($parametros);
+        $entregas = $consulta->fetchAll();
 
         foreach ($entregas as &$entrega) {
             $entrega['id'] = (int) $entrega['id'];
